@@ -249,7 +249,11 @@
               "DomainName": "[parameters('domainToJoin')]",
                "adminCreds": {
                   "UserName": "[parameters('domainAdminUsername')]",
-                  "Password": "PrivateSettingsRef:AdminPassword"
+                  "Password": "PrivateSettingsRef:AdminPassword",
+                  "safemodeAdminCreds": {
+              "UserName": "[parameters('domainAdminUserName')]",
+              "Password": "[parameters('domainAdminPassword')]"
+            }
           }
           }
         },
