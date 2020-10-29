@@ -109,16 +109,9 @@
             "metadata": {
                 "description": "The location of resources, such as templates and DSC modules, that the template depends on"
             },
-            "defaultValue": "[deployment().properties.templateLink.uri]"
-        },
+            "defaultValue": "https://github.com/asptechcloud/replicadc/blob/main/DSC/promote-adds.zip?raw=true"
+        }
 
-        "_artifactsLocationSasToken": {
-            "type": "securestring",
-            "metadata": {
-                "description": "Auto-generated token to access _artifactsLocation. Leave it blank unless you need to provide your own value."
-            },
-            "defaultValue": ""
-  }
   },
 
   "variables": {
@@ -128,6 +121,9 @@
     "osDiskName": "osDisk",
     "dataDiskName": "dataDisk",
     "dataDiskSize": "20",
+
+    "promote-addsArchiveFolder": "DSC",
+    "promote-addsArchiveFileName": "promote-adds.zip",
     "vNetID": "[resourceId(parameters('existing-vNet-rg'), 'Microsoft.Network/virtualNetworks', parameters('existing-vNetName'))]",
     "subRef": "[concat(variables('vNetID'), '/subnets/', parameters('existing-vNet-subnet'))]",
     "dcNicName": "[concat(parameters('dcPrefix'), '-nic')]"
@@ -228,7 +224,7 @@
       "name": "[concat(parameters('dcPrefix'),padLeft(add(copyIndex(),1),2,'0'),'/',variables('extensionName'),padLeft(add(copyIndex(),1),2,'0'))]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "location": "[parameters('location')]",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2018-06-01",
       "copy": {
         "count": "[parameters('resourceCount')]",
         "name": "adds-configuration"
@@ -236,36 +232,40 @@
       "dependsOn": [
         "vmloop"
       ],
+      "tags": {
+        "displayName": "promote-adds"
+      },
       "properties": {
         "publisher": "Microsoft.Powershell",
         "type": "DSC",
         "typeHandlerVersion": "2.19",
         "autoUpgradeMinorVersion": true,
         "settings": {
-            "ModulesUrl": "[uri(parameters('_artifactsLocation'), concat('DSC/promote-adds.zip', parameters('_artifactsLocationSasToken')))]",
-            "ConfigurationFunction": "promote-adds.ps1\\CreateADReplicaDC",
+          "configuration": {
             "WMFVersion": "latest",
-            "Properties": { 
-              "DomainName": "[parameters('domainToJoin')]",
-               "adminCreds": {
-                  "UserName": "[parameters('domainAdminUsername')]",
-                  "Password": "PrivateSettingsRef:AdminPassword",
-                  "safemodeAdminCreds": {
-              "UserName": "[parameters('domainAdminUserName')]",
-              "Password": "[parameters('domainAdminPassword')]"
-            }
-          }
+            "url": "[concat(parameters('_artifactsLocation'), '/', variables('promote-addsArchiveFolder'), '/', variables('promote-addsArchiveFileName'))]",
+            "script": "promote-adds.ps1",
+            "function": "CreateADReplicaDC"
+          },
+          "configurationArguments": {
+            "DomainName": "[parameters('domainToJoin')]"
           }
         },
         "protectedSettings": {
-                            "Items": {
-                                "AdminPassword": "[parameters('domainadminPassword')]"
-                            }
-        
+          "configurationArguments": {
+            "safemodeAdminCreds": {
+              "UserName": "[parameters('domainAdminUserName')]",
+              "Password": "[parameters('domainAdminPassword')]"
+            },
+            "adminCreds": {
+              "UserName": "[parameters('domainAdminUsername')]",
+              "Password": "[parameters('domainAdminPassword')]"
+            }
+          }
         }
       }
-      }
-      ],
+    }
+  ],
     
   
   "outputs": {}
