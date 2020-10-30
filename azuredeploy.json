@@ -2,8 +2,24 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "customerID": {
+            "type": "string",
+            "metadata": {
+                "description": "Customer ID - Use CRM Account Number but use lowercase, e.g aspire-telecoms"
+            }
+        },
+        "contractID": {
+            "type": "string",
+        
+            "metadata": {
+                "description": "Contract ID - Use CRM Contract Number e.g 2016/24555"
+            }
+        },
+    
+    
     "dcPrefix": {
       "type": "string",
+      "defaultValue": "[parameters('customerID')]",
       "metadata": {
         "description": "Name prefix for domain controllers"
       }
@@ -11,8 +27,8 @@
 
     "vmSize": {
       "type": "string",
-      "allowedValues": ["Standard_DS2_v2", "Standard_B2ms", "Standard_B4ms", "Standard_B8ms" ],
-      "defaultValue": "Standard_DS2_v2",
+      "allowedValues": ["Standard_B2ms", "Standard_B4ms", "Standard_B8ms" ],
+      "defaultValue": "Standard_B2ms",
       "metadata": {
         "description": "Size of the VM to deploy"
       }
@@ -39,13 +55,13 @@
     "locAdminUserName": {
       "type": "string",
       "metadata": {
-        "description": "First domain controller local admin name"
+        "description": "New domain controller local admin name"
       }
     },
     "locAdminPswrd": {
       "type": "securestring",
       "metadata": {
-        "description": "First domain controller local admin password"
+        "description": "New domain controller local admin password"
       }
     },
     
@@ -54,7 +70,7 @@
       "metadata": {
         "description": "OS versions for VMs deployed"
       },
-    "defaultValue": "2016-Datacenter",
+    "defaultValue": "2019-Datacenter",
       "allowedValues": [
         "2008-R2-SP1",
         "2012-Datacenter",
@@ -76,6 +92,7 @@
         "Premium_LRS",
         "Standard_LRS"
       ],
+      "defaultValue": "Standard_LRS",
       "metadata": {
         "description": "Type of storage deployed with the VMs"
       }
@@ -104,6 +121,14 @@
         "description": "Location of deployed resources"
       }
     },
+
+    "resourceTags": {
+            "type": "object",
+            "defaultValue": {
+                "Customer": "[parameters('customerID')]",
+                "Contract": "[parameters('contractID')]"
+            }
+        },
       "_artifactsLocation": {
             "type": "string",
             "metadata": {
@@ -139,9 +164,7 @@
         "name": "nicloop"
       },
       "dependsOn": [],
-      "tags": {
-        "displayName": "dcVmNic"
-      },
+      "tags": "[parameters('resourceTags')]",
       "properties": {
         "ipConfigurations": [
           {
@@ -170,9 +193,6 @@
       "dependsOn": [
         "nicloop"
       ],
-      "tags": {
-        "displayName": "dc"
-      },
       "properties": {
         "hardwareProfile": {
           "vmSize": "[parameters('vmSize')]"
