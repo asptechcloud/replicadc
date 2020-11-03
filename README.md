@@ -1,2 +1,8 @@
 # replicadc
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fasptechcloud%2Freplicadc%2Fmain%2Fazuredeploy.json)
+
+
+Pre-requisities
+An existing VNet needs to be set-up with a S2S VPN or ExpressRoute with private peering. In order for the template to work, DNS servers in the Azure VNet need to point to on-premises domain controllers. When the servers come online, they will need to know how to resolve DNS in order to both join the domain and be promoted as a replica domain controller. This custom DNS server setting is configured within your virtual network (VNet).
+A Key Vault must be set up in the subscription. The parameters json showcases how to reference a secret, but values need to be changed per the environment you are deploying this Quickstart to in Azure.
+Prior to running this template, ensure Active Directory Sites and Services is set up within your ADDS environment on-premises before provisioning your Azure replica domain controller environment. AD Sites provides a great solution for managing ADDS environments that have different geographical locations, yet fall under the same domain. AD Sites are groupings of well-connected IP subnets that are used to efficiently replicate information among domain controllers. AD Sites help to achieve cost-efficiency and speed, along with letting companies exercise better control over the replication traffic and the entire authentication process. When there is more than one DC in the associated site that is capable of handling client logon, services, and directory searches, AD Sites locates the closest DC to perform those actions.
