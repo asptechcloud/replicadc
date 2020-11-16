@@ -2,7 +2,6 @@
 
 Deploy a replica DC and connect to on-prem/other existing domain.
 
-Pre-requisities
 
 An existing VNet needs to be set-up with a S2S VPN or ExpressRoute with private peering - this must be completed before the template is deployed.
 
